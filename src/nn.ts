@@ -2,7 +2,7 @@ import { Scalar } from './scalar.ts';
 
 /** Standard interface for NN type objects. */
 export interface Model {
-    call(this: this, x: Scalar[]): Scalar | Scalar[],
+    call(this: this, x: Scalar[]): Scalar[],
     parameters(this: this): Scalar[],
     zeroGrad(this: this): void,
 }
@@ -30,10 +30,10 @@ export class Neuron implements Model {
         this.nonlin = nonlin;
     }
 
-    call(this: this, x: Scalar[]): Scalar {
+    call(this: this, x: Scalar[]): Scalar[] {
         // sum(w * x) + b
         const act = this.w.map((w, i) => w.mul(x[i])).reduce((p, c) => p.add(c)).add(this.b);
-        return (this.nonlin) ? act.relu() : act;
+        return [(this.nonlin) ? act.relu() : act];
     }
 
     parameters(this: this): Scalar[] {
@@ -69,7 +69,7 @@ export class Layer implements Model {
     }
 
     call(this: this, x: Scalar[]): Scalar[] {
-        const out = this.neurons.map(v => v.call(x));
+        const out = this.neurons.map(v => v.call(x)[0]);
         return out;
     }
 

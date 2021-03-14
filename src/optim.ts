@@ -51,8 +51,7 @@ export class SGD implements Optimizer {
  * Used for multiclassification.
  * @param X Features. X[i] gets a single sample. X[i][j] gets a single feature from a
  *  single sample. X[0].length should be equal to the number of inputs to the model
- * @param y Labels. Should contain m integers in the range 0..(n-1)
- *  where n is the number of output Neurons in the Model and m = X.length
+ * @param y Labels. Should contain m integers valued -1 or 1 where m = X.length
  */
 export class MaxMargin implements LossFunction {
     loss(model: Model, X: number[][], y: number[], batchSize?: number): [Scalar, number] {
@@ -69,20 +68,14 @@ export class MaxMargin implements LossFunction {
 
         // SVM max-margin loss ReLu(sp - st + 1)
         let accuracy = 0;
-        const losses = scores.map(s => new Scalar(0));
+        const losses = scores.map(s => new Scalar(1.0));
         for (let n = 0; n < scores.length; n++) {
-            const yTruth = yb[n];
-            const yi = scores[n][yTruth];
+            const yi = yb[n]; // Expected
+            const pi = scores[n][0]; // Predicition
 
-            for (let i = 0; i < scores[n].length; i++) {
-                if (i == yTruth) {
-                    continue;
-                }
+            losses[n] = losses[n].add(pi.mul(-yi)).relu();
 
-                const si = scores[n][i];
-                losses[n] = losses[n].add(si.sub(yi).add(1).relu());
-            }
-            if (losses[n].data <= 0.00001) {
+            if ((yi > 0.0) == (pi.data > 0.0)) {
                 accuracy += 1;
             }
         }

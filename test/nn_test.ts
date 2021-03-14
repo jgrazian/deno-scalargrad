@@ -27,23 +27,23 @@ Deno.test("NN - MLP", () => {
 Deno.test("NN - Train", () => {
     const data = loadCsv('./test/data/moons.csv');
     const X = data.map(l => [l[0], l[1]]);
-    const y = data.map(l => l[2]);
+    const y = data.map(l => l[2]*2 - 1); // Remap to -1, 1
 
     // 2 Inputs, 2 Hidden Layers, 2 Outputs
-    const model = new MLP(2, [8, 8, 2]);
+    const model = new MLP(2, [8, 8, 1]);
 
     const opt = new SGD();
     const cost = new MaxMargin();
 
-    opt.train(model, cost, X, y, { niter: 100 });
+    opt.train(model, cost, X, y, { niter: 120 });
 
     const fit: number[][] = [];
-    for (let x = -2; x <= 2; x += 0.1) {
-        for (let y = -2; y <= 2; y += 0.1) {
+    for (let x = -3; x <= 3; x += 0.1) {
+        for (let y = -3; y <= 3; y += 0.1) {
             const p = model.call([new Scalar(x), new Scalar(y)]);
-            fit.push([x, y, p[0].data, p[1].data]);
+            fit.push([x, y, p[0].data]);
         }
     }
 
-    Deno.writeTextFileSync('./test/data/moon_fit.csv', fit.map(c => c.join(', ')).join('\n'));
+    Deno.writeTextFileSync('./test/data/moons_fit.csv', fit.map(c => c.join(', ')).join('\n'));
 });

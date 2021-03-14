@@ -4,6 +4,10 @@ A scalar (single number) autograd engine based off of the great [micrograd](http
 
 The biggest issue that Deno is going to have in breaking into the ML market is the lack of operator overloading. I apologize for the grossness of method chaining.
 
+## Example
+See ./test/nn_test.ts for an example of use in a multi-layer perceptron.
+![moons fit](/test/data/moons.png)
+
 
 ## Instructions
 1. Clone this repo
